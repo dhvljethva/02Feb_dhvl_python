@@ -1,0 +1,7 @@
+echo "# 02Feb_dhvl_python" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/dhvljethva/02Feb_dhvl_python.git
+git push -u origin main
