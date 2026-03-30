@@ -1,0 +1,22 @@
+str.capitalizen
+str = "i m stuying python from apna collage"
+str = str.capitalize()
+print(str)
+
+str.replace
+
+str = "we are learning python from apna collage"
+print(str.replace("python","AIML"))
+
+str.find
+
+str = "now we getting job from next month"
+print(str.find("we"))
+
+str.count
+
+str = "im studyin from python from youtube"
+print(str.count("from"))'''
+
+name = input("Enter your name")
+print("length of your name is",len(name))
