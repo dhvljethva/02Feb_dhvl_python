@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Profile</title>
+</head>
+<body>
+    <h1>Create a New Profile</h1>
+
+    <!-- The form sends data via POST so our view can process it -->
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Create Profile</button>
+    </form>
+
+    <br>
+    <a href="{% url 'profile_list' %}">View All Profiles</a>
+</body>
+</html>

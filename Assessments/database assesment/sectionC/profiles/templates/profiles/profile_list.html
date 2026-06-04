@@ -1,0 +1,48 @@
+{% extends 'profiles/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>All Profiles</h1>
+    <div>
+        <a href="{% url 'profile_create' %}" class="btn btn-primary">+ Add Profile</a>
+        <a href="{% url 'profile_export' %}" class="btn btn-success">Export CSV</a>
+    </div>
+</div>
+
+{% if profiles %}
+<div class="table-responsive">
+    <table class="table table-hover bg-white rounded">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profile in profiles %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ profile.first_name }}</td>
+                <td>{{ profile.last_name }}</td>
+                <td>{{ profile.email }}</td>
+                <td>{{ profile.phone }}</td>
+                <td>{{ profile.city }}</td>
+                <td>
+                    <a href="{% url 'profile_edit' profile.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No profiles found. Click "Add Profile" to create one.
+</div>
+{% endif %}
+{% endblock %}
