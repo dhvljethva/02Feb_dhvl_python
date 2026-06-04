@@ -1,0 +1,23 @@
+1. Explain why REST APIs are preferred for mobile and frontend-heavy apps.
+
+REST APIs are lightweight, fast, and use JSON format, which is easy for mobile and frontend applications to process. They allow frontend and backend systems to work independently.
+
+2. Explain how serializers act as a validation layer and how to implement custom field-level validation.
+
+Serializers convert complex model data into JSON and validate incoming request data before saving. Custom field validation can be implemented using methods like validate_fieldname() inside the serializer.
+
+3. Explain the importance of using appropriate HTTP status codes (201 Created vs 200 OK) for API outcomes.
+
+HTTP status codes clearly communicate API results to clients. 201 Created indicates successful resource creation, while 200 OK indicates a successful request without creating a new resource.
+
+4. Explain why pagination is required when listing doctors and how it impacts database performance.
+
+Pagination limits the number of records returned per request. It improves API speed, reduces server load, and prevents performance issues when handling large doctor datasets.
+
+5. Explain the benefits of ViewSets over APIView for rapid CRUD development.
+
+ViewSets reduce code duplication by providing built-in CRUD operations in a single class. They work well with routers to automatically generate API endpoints quickly.
+
+6. Explain the use of Atomic Transactions (transaction.atomic) when creating related doctor records to ensure data integrity.
+
+transaction.atomic() ensures database operations are treated as a single unit. If any step fails during record creation, all changes are rolled back, maintaining data consistency and preventing partial data storage.
