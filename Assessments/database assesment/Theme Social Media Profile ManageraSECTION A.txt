@@ -1,0 +1,36 @@
+Theme: Social Media Profile Manager
+Section A: Conceptual Understanding
+
+1.Explain the Django Request-Response cycle and how it differs from a standard
+Python script execution.
+
+ANS : Django follows a request-response cycle where it receives a user request, processes it, and returns a response, whereas a standard Python script executes code sequentially from start to end and then terminates.
+
+2.Explain why Django Model Fields (CharField, IntegerField) are more robust for
+profile data than Python dynamic typing.
+
+ANS : Django Model Fields like CharField and IntegerField enforce specific data types and validation rules, ensuring accurate data storage. Python's dynamic typing allows variables to change types at runtime, which can lead to data errors and inconsistencies.
+
+3.Explain how Django Forms handle automated input validation for usernames
+and age ranges.
+
+ANS: Django Forms automatically validate user input using field types and validation rules. For example, a username field can check required length and format, while an age field can enforce a valid range (e.g., 18–60) before the data is saved.
+
+4.Explain how to implement conditional logic in Django Templates to toggle account visibility.
+
+ANS:  Django Templates use {% if %} statements for conditional logic. To toggle account visibility, check a user's visibility setting and display profile information only when the account is marked as public.
+
+{% if user.is_public %}
+    Profile Visible
+{% else %}
+    Profile Hidden
+{% endif %}
+
+5.Explain the difference between iterating through a Python list and a Django QuerySet.
+
+ANS: A Python list contains data already loaded into memory, so iteration happens directly. A Django QuerySet represents database records and retrieves data from the database only when needed (lazy loading), making it more efficient for large datasets.
+
+6.Explain why the Django ORM is preferred over Python dictionaries for persistent
+profile storage.
+
+ANS: The Django ORM stores data permanently in a database and provides features like validation, querying, and relationships. Python dictionaries store data only in memory and lose it when the program stops, making them unsuitable for persistent profile storage.

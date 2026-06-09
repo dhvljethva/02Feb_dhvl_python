@@ -1,0 +1,181 @@
+{% extends 'profiles/base.html' %}
+
+{% block title %}{{ title }} | Social Profile Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        margin-bottom: 28px;
+    }
+
+    .form-header h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+    }
+
+    .form-header p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+    /* Standardized Form Input Styling */
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-glass);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        background-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
+    }
+
+    /* Checkbox & Checkbox container */
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 8px;
+        cursor: pointer;
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        border: 1px solid var(--border-glass);
+        background-color: rgba(255, 255, 255, 0.03);
+        accent-color: var(--accent-primary);
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        font-weight: 500;
+        user-select: none;
+        cursor: pointer;
+    }
+
+    /* Error and Validation displays */
+    .errorlist {
+        list-style-type: none;
+        color: var(--error);
+        font-size: 0.85rem;
+        margin-top: 6px;
+        font-weight: 500;
+    }
+
+    .form-control.is-invalid {
+        border-color: var(--error);
+        background-color: rgba(239, 68, 68, 0.03);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-glass);
+    }
+
+    .help-text {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+    <div class="glass-card animate-fade-in" id="form_glass_card">
+        <div class="form-header">
+            <h2>{{ title }}</h2>
+            <p>
+                {% if is_edit %}
+                Modify existing account rules and parameters below
+                {% else %}
+                Register a new profile with validation rules
+                {% endif %}
+            </p>
+        </div>
+
+        <form method="POST" novalidate id="profile_submission_form">
+            {% csrf_token %}
+
+            <!-- Form Fields Loop -->
+            {% for field in form %}
+            <div class="form-group" id="group_{{ field.name }}">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                
+                <!-- Handle checkbox separately for layout -->
+                {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="form-check">
+                    {{ field }}
+                    <span class="form-check-label" onclick="document.getElementById('{{ field.id_for_label }}').click();">
+                        {{ field.help_text }}
+                    </span>
+                </div>
+                {% else %}
+                    <!-- Render TextInput or NumberInput with conditional invalid borders -->
+                    <div style="position: relative;">
+                        {{ field }}
+                    </div>
+                    {% if field.help_text and field.field.widget.input_type != 'checkbox' %}
+                    <p class="help-text">{{ field.help_text }}</p>
+                    {% endif %}
+                {% endif %}
+                
+                <!-- Display field-level errors -->
+                {% if field.errors %}
+                <ul class="errorlist">
+                    {% for error in field.errors %}
+                    <li id="error_{{ field.name }}_{{ forloop.counter }}">⚠️ {{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <!-- Form Actions Button Row -->
+            <div class="form-actions">
+                <a href="{% url 'profile_list' %}" class="btn btn-secondary" id="form_cancel_btn">Cancel</a>
+                <button type="submit" class="btn btn-primary" id="form_submit_btn">
+                    {{ button_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

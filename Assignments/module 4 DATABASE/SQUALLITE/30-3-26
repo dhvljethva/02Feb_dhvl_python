@@ -1,0 +1,48 @@
+import sqlite3 
+
+try:
+    db = sqlite3.connect("topsdb.db")
+except Exception as e:
+ print(e)
+
+# create_tbl="create table studentinfo(id integer primary key autoincrement,name text,city text)" 
+# try:
+#    db.execute(create_tbl)
+#    print("Table created")
+# except Exception as e:  
+#    print(e) 
+
+# insert_data = "insert into studentinfo(name,city) values('dhaval','rajkot'),('rajan','veraval'),('param','baroda'),('vipul','dwarka')"
+
+# try:
+#    db.execute(insert_data)
+#    db.commit()
+#    print('Record Inserted!')
+# except Exception as e:
+#    print(e)  
+
+# update_data = "update studentinfo set name = 'virat',city='veraval' where id = 4"
+# try: 
+#    db.execute(update_data)
+#    db.commit()
+#    print("record update")
+# except Exception as e:
+#    print(e)   
+
+# delete_data = "delete from studentinfo where id = 3"
+# try:
+#    db.execute(delete_data)
+#    db.commit()
+#    print("Record delete")
+# except Exception as e:
+#    print(e)   
+
+cr = db.cursor()
+show_data = "select * from studentinfo"
+try:
+   cr.execute(show_data)
+   data =cr.fetchall()
+   print(data) 
+except Exception as e:
+   print(e)
+

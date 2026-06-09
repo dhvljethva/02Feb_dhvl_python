@@ -1,0 +1,73 @@
+# Django Social Profile Manager Roadmap
+
+This plan summarizes the existing state of the Django-based Social Profile Manager and presents structured options for the next phase of development. 
+
+The application is currently a fully-functional, beautifully-styled CRUD profile manager powered by Django, SQLite, and an Outfit/Plus Jakarta Sans glassmorphic custom CSS styling system. It includes robust data integrity validations, interactive statistics dashboard calculations, and secure CSV exporting.
+
+---
+
+## User Review Required
+
+Please review the following structural aspects of the existing codebase:
+> [!NOTE]
+> The application currently uses SQLite for zero-configuration, beginner-friendly out-of-the-box local operation. Settings configuration files contain pre-commented schemas for transition to robust relational databases such as PostgreSQL or MySQL/MariaDB.
+>
+> If you are planning to deploy this application to production or a staging environment, we recommend migrating the database engine in the next phase.
+
+---
+
+## Open Questions
+
+To tailor the next steps precisely to your learning or development goals, please review the proposed options below and let us know which features you would like to implement:
+
+> [!IMPORTANT]
+> **Which enhancement do you want to prioritize first?**
+>
+> 1. **Option A: Dynamic Profile Search & Filtering**
+>    - Add an elegant search bar in the dashboard to filter user profiles by username or age range in real-time.
+> 2. **Option B: Dashboard Pagination**
+>    - Incorporate standard Django pagination to cleanly slice long lists of profiles (e.g., 5 or 10 per page) with beautiful aesthetic navigation buttons.
+> 3. **Option C: User Authentication & Profile Ownership**
+>    - Link `UserProfile` entries to Django's built-in `User` model, ensuring users can only edit or delete their own profiles.
+> 4. **Option D: RDBMS Database Migration (PostgreSQL / MySQL)**
+>    - Migrate the backend storage from SQLite to PostgreSQL or MySQL, configuring environment variables for database credentials.
+
+---
+
+## Proposed Changes
+
+Depending on the option you choose, the modifications will affect the following components:
+
+### Backend Controllers & Models
+Summary of current logic in models and view functions.
+
+#### [MODIFY] [models.py](file:///d:/Python%20TOPS/Projects/database/profiles/models.py)
+- Currently holds `UserProfile` (fields: `username`, `age`, `is_public`).
+- *If Option C is selected*: We will introduce a `ForeignKey` relationship to Django's standard User model (`django.contrib.auth.models.User`).
+
+#### [MODIFY] [views.py](file:///d:/Python%20TOPS/Projects/database/profiles/views.py)
+- Currently handles CRUD and CSV exports using context managers.
+- *If Option A or B is selected*: We will modify `profile_list` view to process `GET` search parameters (`q`) and apply Django's standard Paginator.
+
+---
+
+### Frontend Templates
+Summary of the presentation layer.
+
+#### [MODIFY] [profile_list.html](file:///d:/Python%20TOPS/Projects/database/profiles/templates/profiles/profile_list.html)
+- Currently displays glassmorphic statistics cards and user profile rows with DTL visibility logic.
+- *If Option A or B is selected*: We will add an input form for searching and interactive pagination buttons at the footer of the container card.
+
+---
+
+## Verification Plan
+
+Any newly selected feature will be verified using robust automated and manual procedures.
+
+### Automated Tests
+We will execute standard Django testing suite commands:
+- `python manage.py test` to ensure existing and new unit tests (testing inputs, forms, and custom validations) pass cleanly.
+
+### Manual Verification
+- Deploying locally using `python manage.py runserver` and inspecting browser UI styling using the dev server.
+- Verifying CSV export integrity by inspecting headers and row data.

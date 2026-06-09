@@ -1,0 +1,548 @@
+{% extends 'profiles/base.html' %}
+
+{% block title %}Dashboard | Social Profile Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Stats Layout */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 36px;
+    }
+
+    .stat-card {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-glass);
+        border-radius: 14px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(59, 130, 246, 0.25);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--accent-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-icon.green {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+    }
+
+    .stat-icon.amber {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+    }
+
+    .stat-icon.purple {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+    }
+
+    .stat-icon svg {
+        width: 24px;
+        height: 24px;
+        fill: currentColor;
+    }
+
+    .stat-details h4 {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .stat-details p {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .dashboard-title h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .dashboard-title p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    /* Profiles List Table Container */
+    .profiles-table-container {
+        overflow-x: auto;
+    }
+
+    .profiles-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .profiles-table th {
+        padding: 16px 20px;
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-glass);
+    }
+
+    .profiles-table td {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border-glass);
+        font-size: 0.95rem;
+        vertical-align: middle;
+    }
+
+    .profiles-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .profiles-table tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .profiles-table tr:hover {
+        background-color: rgba(255, 255, 255, 0.015);
+    }
+
+    /* Status Badges */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .badge-public {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-private {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    /* Action Buttons Row */
+    .actions-cell {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn-icon {
+        padding: 8px;
+        border-radius: 6px;
+        background: transparent;
+        border: 1px solid var(--border-glass);
+        color: var(--text-muted);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-icon:hover {
+        color: var(--text-primary);
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-icon.edit:hover {
+        color: var(--accent-primary);
+        border-color: rgba(59, 130, 246, 0.3);
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-icon.delete:hover {
+        color: var(--error);
+        border-color: rgba(239, 68, 68, 0.3);
+        background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    .btn-icon svg {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+    }
+
+    /* Empty state styling */
+    .empty-state {
+        text-align: center;
+        padding: 60px 40px;
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        border: 1px dashed var(--border-glass);
+    }
+
+    .empty-state-icon svg {
+        width: 32px;
+        height: 32px;
+        fill: currentColor;
+    }
+
+    .empty-state h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 24px;
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Form Control for Search Input */
+    .form-control {
+        padding: 12px 16px;
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-glass);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        background-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
+    }
+
+    /* Pagination Styles */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-glass);
+    }
+
+    .pagination-info {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    .pagination-nav {
+        display: flex;
+        gap: 8px;
+    }
+
+    .pagination-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 38px;
+        height: 38px;
+        padding: 0 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border-glass);
+        background-color: rgba(255, 255, 255, 0.02);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .pagination-link:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .pagination-link.active {
+        background: var(--accent-gradient);
+        border-color: transparent;
+        color: #fff;
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.25);
+    }
+
+    .pagination-link.disabled {
+        color: var(--text-muted);
+        opacity: 0.5;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Dashboard Statistics Grid -->
+<div class="stats-grid" id="stats_dashboard">
+    <!-- Stat 1: Total Profiles -->
+    <div class="stat-card" id="stat_total">
+        <div class="stat-icon purple">
+            <svg viewBox="0 0 24 24">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+        </div>
+        <div class="stat-details">
+            <h4>Total Profiles</h4>
+            <p>{{ total_count }}</p>
+        </div>
+    </div>
+
+    <!-- Stat 2: Public Profiles -->
+    <div class="stat-card" id="stat_public">
+        <div class="stat-icon green">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+        </div>
+        <div class="stat-details">
+            <h4>Public Profiles</h4>
+            <p>{{ public_count }}</p>
+        </div>
+    </div>
+
+    <!-- Stat 3: Private Profiles -->
+    <div class="stat-card" id="stat_private">
+        <div class="stat-icon amber">
+            <svg viewBox="0 0 24 24">
+                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+            </svg>
+        </div>
+        <div class="stat-details">
+            <h4>Private Profiles</h4>
+            <p>{{ private_count }}</p>
+        </div>
+    </div>
+
+    <!-- Stat 4: Average Age -->
+    <div class="stat-card" id="stat_average">
+        <div class="stat-icon purple">
+            <svg viewBox="0 0 24 24">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+            </svg>
+        </div>
+        <div class="stat-details">
+            <h4>Average Age</h4>
+            <p>{{ avg_age }} <span style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted)">yrs</span></p>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Dashboard Card -->
+<div class="glass-card" id="profiles_dashboard_card">
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h2>User Profiles</h2>
+            <p>List of stored user profiles and persistent configurations</p>
+        </div>
+        <div>
+            <a href="{% url 'profile_create' %}" class="btn btn-primary" id="dashboard_create_btn">
+                Add Profile
+            </a>
+        </div>
+    </div>
+
+    {% if total_count > 0 %}
+    <!-- Dynamic Search Section -->
+    <div class="search-section" style="margin-bottom: 24px;" id="dashboard_search_section">
+        <form method="GET" action="{% url 'profile_list' %}" style="display: flex; gap: 12px; width: 100%;">
+            <div style="position: relative; flex-grow: 1;">
+                <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; display: flex; align-items: center;">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </span>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search profiles by username..." class="form-control" style="padding-left: 48px; width: 100%; height: 46px;" id="search_input_field">
+            </div>
+            <button type="submit" class="btn btn-primary" style="height: 46px; padding: 0 24px; font-size: 0.95rem;" id="search_submit_btn">
+                Search
+            </button>
+            {% if query %}
+            <a href="{% url 'profile_list' %}" class="btn btn-secondary" style="height: 46px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem;" id="search_clear_btn">
+                Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    {% if profiles %}
+    <div class="profiles-table-container">
+        <table class="profiles-table" id="profiles_list_table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Age</th>
+                    <th>Account Status</th>
+                    <th style="width: 120px; text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Section B.4: Render Profiles with Django Template Language -->
+                {% for profile in profiles %}
+                <tr id="profile_row_{{ profile.id }}">
+                    <td>
+                        <span style="font-weight: 600; color: var(--text-primary)">
+                            <!-- Section A.4 & C.4: Conditional Visibility Logic using DTL -->
+                            {% if profile.is_public %}
+                                @{{ profile.username }}
+                            {% else %}
+                                🔒 [Private Profile]
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if profile.is_public %}
+                            {{ profile.age }} years old
+                        {% else %}
+                            <span style="color: var(--text-muted)">Hidden</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if profile.is_public %}
+                        <span class="badge badge-public" id="badge_public_{{ profile.id }}">Public</span>
+                        {% else %}
+                        <span class="badge badge-private" id="badge_private_{{ profile.id }}">Private</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="actions-cell" style="justify-content: flex-end;">
+                            <a href="{% url 'profile_edit' profile.id %}" class="btn-icon edit" title="Edit Profile" id="edit_link_{{ profile.id }}">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                            </a>
+                            <form action="{% url 'profile_delete' profile.id %}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to permanently delete profile @{{ profile.username }}?');" id="delete_form_{{ profile.id }}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-icon delete" title="Delete Profile" id="delete_btn_{{ profile.id }}">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Beautiful Pagination Controls -->
+    {% if profiles.has_other_pages %}
+    <div class="pagination-container" id="pagination_controls">
+        <div class="pagination-info" id="pagination_info_text">
+            Showing <strong>{{ profiles.start_index }}</strong> to <strong>{{ profiles.end_index }}</strong> of <strong>{{ profiles.paginator.count }}</strong> profiles
+        </div>
+        <nav class="pagination-nav">
+            <!-- Previous Button -->
+            {% if profiles.has_previous %}
+            <a href="?page={{ profiles.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="pagination-link" id="prev_page_link" aria-label="Previous Page">
+                &laquo; Prev
+            </a>
+            {% else %}
+            <span class="pagination-link disabled" aria-disabled="true">&laquo; Prev</span>
+            {% endif %}
+
+            <!-- Page Numbers -->
+            {% for num in profiles.paginator.page_range %}
+                {% if profiles.number == num %}
+                <span class="pagination-link active" id="active_page_{{ num }}">{{ num }}</span>
+                {% elif num > profiles.number|add:'-3' and num < profiles.number|add:'3' %}
+                <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}" class="pagination-link" id="page_link_{{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Next Button -->
+            {% if profiles.has_next %}
+            <a href="?page={{ profiles.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="pagination-link" id="next_page_link" aria-label="Next Page">
+                Next &raquo;
+            </a>
+            {% else %}
+            <span class="pagination-link disabled" aria-disabled="true">Next &raquo;</span>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Search query returned empty results -->
+    <div class="empty-state" id="search_empty_state" style="padding: 50px 40px;">
+        <div class="empty-state-icon" style="background: rgba(239, 68, 68, 0.05); color: var(--error); border-color: rgba(239, 68, 68, 0.15);">
+            <svg viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+        </div>
+        <h3>No matching profiles found</h3>
+        <p>We couldn't find any profiles matching "<strong>@{{ query }}</strong>". Try searching for another username or clear the active query.</p>
+        <a href="{% url 'profile_list' %}" class="btn btn-secondary" id="search_empty_clear_btn" style="margin-top: 12px;">
+            Clear Search
+        </a>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Elegant Empty State representation if no profile exists in database at all -->
+    <div class="empty-state" id="empty_profiles_state">
+        <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 10c2.7 0 5.8 1.29 6 2H6c.23-.72 3.31-2 6-2zm0-12C7.58 4 4 7.58 4 12s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 12c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm0-8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+            </svg>
+        </div>
+        <h3>No profiles created yet</h3>
+        <p>Start managing your community profiles. Add your first social media user profile below!</p>
+        <a href="{% url 'profile_create' %}" class="btn btn-primary" id="empty_state_create_btn">
+            Create First Profile
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
